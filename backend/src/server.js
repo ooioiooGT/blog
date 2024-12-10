@@ -1,5 +1,5 @@
 import express from 'express';
-import {MongoClient} from 'mongodb';
+import { db, ConnectToDb } from './db.js';
 
 
 const app = express();
@@ -7,10 +7,7 @@ app.use(express.json());
 
 app.get('/api/articles/:name', async (req,res) =>{
   const {name} = req.params;
-  const client = new MongoClient('mongodb://127.0.0.1:27017');
-  await client.connect();
-
-  const db=client.db('react-blog-db');
+ 
   const article = await db.collection('articles').findOne({name});
   if (article){
     res.json(article);
@@ -21,23 +18,27 @@ app.get('/api/articles/:name', async (req,res) =>{
 })
 
 //this apit count how many times that user click
-app.put('/api/articles/:name/upvote', (req,res) => {
+app.put('/api/articles/:name/upvote', async (req,res) => {
   const {name} = req.params;
-  const article = articlesInfo.find(a => a.name ===name); 
-  if ( article){
-    article.upvotes += 1; 
+  await db.collection('articles').updateOne({name}, {
+    $inc:{ upvotes:1},
+  });
+  const article = await db.collection('articles').findOne({name});
+  if (article){
     res.send(`the ${name} article now has ${article.upvotes} upvote`);
   }else{
     res.send('That article dos not exist')
   }
 });
 
-app.post('/api/articles/:name/comments', (req,res) => {
+app.post('/api/articles/:name/comments', async (req,res) => {
   const {name} = req.params;
   const {postby, comment} = req.body;
-  const article = articlesInfo.find(a => a.name === name);
+  await db.collection('articles').updateOne({name},{
+    $push: {comments: {postby, comment}},
+  })
+  const article = await db.collection('articles').findOne({name});
   if(article){
-    article.comments.push({postby, comment});
     res.send(article.comments);
   }else{
     res.send('That article dos not exist')
@@ -45,20 +46,23 @@ app.post('/api/articles/:name/comments', (req,res) => {
   
 })
 
-
-
 // for get data trough the link
- app.get('/hello/:name', (req, res) => {
-   const {name} = req.params;
-   res.send(`Hello ${name} !!`);
- });
-// when the server running will show the word 
- app.listen(8000,() => {
-    console.log('Server is listening on port 8000'); 
- });
-
+app.get('/hello/:name', (req, res) => {
+  const {name} = req.params;
+  res.send(`Hello ${name} !!`);
+});
 //post the data to the server 
- app.post('/hello', (req, res)=>{
-   console.log(req.body);
-   res.send('add sucess');
- });
+app.post('/hello', (req, res)=>{
+  console.log(req.body);
+  res.send('add sucess');
+});
+
+
+
+ConnectToDb(()=>{
+  console.log('success connect to database');
+  // when the server running will show the word 
+ app.listen(8000,() => {
+  console.log('Server is listening on port 8000'); 
+});
+} )
