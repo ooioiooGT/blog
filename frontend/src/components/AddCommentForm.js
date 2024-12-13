@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState,useEffect } from "react"
+import { useState } from "react"
 const AddCommentForm = ({articleName, onArticleUpdated}) =>{
     const [name, setName] = useState('');
     const [commentText, setCommentText] = useState('');
