@@ -1,13 +1,14 @@
 import express from 'express';
 import { db, ConnectToDb } from './db.js';
+import { MongoClient } from 'mongodb';
 
 
 const app = express();
 app.use(express.json());
 
+//get the article
 app.get('/api/articles/:name', async (req,res) =>{
   const {name} = req.params;
- 
   const article = await db.collection('articles').findOne({name});
   if (article){
     res.json(article);
@@ -17,31 +18,32 @@ app.get('/api/articles/:name', async (req,res) =>{
 
 })
 
-//this apit count how many times that user click
+//this api count how many times that user click
 app.put('/api/articles/:name/upvote', async (req,res) => {
   const {name} = req.params;
   await db.collection('articles').updateOne({name}, {
     $inc:{ upvotes:1},
+    
   });
   const article = await db.collection('articles').findOne({name});
   if (article){
-    res.send(`the ${name} article now has ${article.upvotes} upvote`);
+    res.json(article);
   }else{
-    res.send('That article dos not exist')
+    res.send('That article dos not exist');
   }
 });
-
+// post the comment in the article 
 app.post('/api/articles/:name/comments', async (req,res) => {
   const {name} = req.params;
-  const {postby, comment} = req.body;
+  const {postby, text} = req.body;
   await db.collection('articles').updateOne({name},{
-    $push: {comments: {postby, comment}},
+    $push: {comments: {postby, text}},
   })
   const article = await db.collection('articles').findOne({name});
   if(article){
-    res.send(article.comments);
+    res.json(article);
   }else{
-    res.send('That article dos not exist')
+    res.send('That article dos not exist');
   }
   
 })
