@@ -9,7 +9,7 @@ const LoginPage = () => {
     const logIn = async() =>{
         try{
         await signInWithEmailAndPassword(getAuth(), email, password);
-        navigate('/article');
+        navigate('/articles');
         }catch(e){
             setError(e.message);
           
