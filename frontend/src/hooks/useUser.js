@@ -10,8 +10,8 @@ const useUser = () => {
             setUser(user);
             setIsLoding(false);
         });
-        return unsubscribe
+        return unsubscribe;
     },[])
-    return {user, isLoding}
+    return {user, isLoding};
 }
 export default useUser
