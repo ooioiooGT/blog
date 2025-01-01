@@ -45,9 +45,9 @@ const ArticlePage = () => {
         <h1>{article.title}</h1>
         <div className="upvote-section">
             {user
-                ? <button onClick={addUpvote}>{canUpvote ? 'upvote' : 'Already Upvoted'} upvote</button>
+                ? <button onClick={addUpvote}>Like</button>
                 : <button onClick={()=>{navigate('/login') }}>Log in to upvote</button>}
-            <p>This article has{articleInfo.upvotes} upvote(s)</p>
+            <p>This article has{articleInfo.upvotes} like(s)</p>
         </div>
         {article.content.map((paragraph, i) => (
             <p key={i}>{paragraph}</p>
